@@ -1,63 +1,59 @@
-Requirements
-------------
+<a href="https://terraform.io">
+    <img src=".github/tf.png" alt="Terraform logo" title="Terraform" align="left" height="50" />
+</a>
 
-- [Terraform](https://www.terraform.io/downloads.html) 1.1.7 (may work with previous versions)
-- [Go](https://golang.org/doc/install) 1.17 (to build the provider plugin)
+# Terraform Provider for RabbitMQ
 
-Building The Provider
----------------------
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/0UserName/terraform-provider-rabbitmq?label=release&style=for-the-badge)](https://github.com/0UserName/terraform-provider-rabbitmq/releases/latest) [![License](https://img.shields.io/github/license/0UserName/terraform-provider-rabbitmq.svg?style=for-the-badge)](LICENSE)
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-rabbitmq`
+The Terraform Provider for RabbitMQ is a plugin for Terraform that allows you to interact with RabbitMQ. This provider can be used to manage virtual hosts, users, permissions, policies, limits, queues, exchanges, bindings, and more.
 
-```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone git@github.com:terraform-providers/terraform-provider-rabbitmq
+Learn more:
+
+* Read the provider [documentation][provider-documentation].
+
+## Requirements
+
+* [Terraform 1.1.7+][terraform-install] (may work with previous versions)
+
+  For general information about Terraform, visit [terraform.io][terraform-install] and [the project][terraform-github] on GitHub.
+
+* [Go 1.17][golang-install]
+
+  Required if building the provider.
+
+* [RabbitMQ][rabbitmq-releases] 3.8.x or later.
+
+  The provider supports versions in accordance with the RabbitMQ support policies.
+
+    * Learn more: [RabbitMQ Support Policy][rabbitmq-support-policy]
+
+## Using the Provider
+
+To use a released version of the Terraform provider in your environment, run `terraform init` and Terraform will automatically install the provider from the Terraform Registry. For either installation method, documentation about the provider configuration, resources, and data sources can be found on the Terraform Registry.
+
+## Upgrading the Provider
+
+The provider does not upgrade automatically. After each new release, you can run the following command to upgrade the provider:
+
+```shell
+terraform init -upgrade
 ```
 
-Enter the provider directory and build the provider
+## License
 
-```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-rabbitmq
-$ make build
-```
+The Terraform Provider for RabbitMQ is available under the [Mozilla Public License, version 2.0][provider-license] license.
 
-Using the provider
-------------------
+[provider-documentation]: https://registry.terraform.io/providers/0UserName/rabbitmq/latest/docs
 
-The provider supports versions `3.8.x` and `39.x` of RabbitMQ. It may still work with version`3.7.x`, however this
-version is no longer supported.
+[terraform-install]: https://www.terraform.io/downloads.html
 
-For information on RabbitMQ versions, see the RabbitMQ [version documentation](https://www.rabbitmq.com/versions.html)
-and [changelog](https://www.rabbitmq.com/changelog.html).
+[terraform-github]: https://github.com/hashicorp/terraform
 
+[golang-install]: https://golang.org/doc/install
 
-Developing the Provider
------------------------
+[rabbitmq-support-policy]: https://www.rabbitmq.com/versions.html
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version
-1.17+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as
-adding `$GOPATH/bin` to your `$PATH`.
+[rabbitmq-releases]: https://github.com/rabbitmq/rabbitmq-server/releases
 
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin`
-directory.
-
-```sh
-$ make bin
-...
-$ $GOPATH/bin/terraform-provider-rabbitmq
-...
-```
-
-In order to test the provider, you can simply run `make test`.
-
-```sh
-$ make test
-```
-
-In order to run the full suite of Acceptance tests, run `make testacc`.
-
-*Note:* Acceptance tests create real resources, and often cost money to run.
-
-```sh
-$ make testacc
-```
+[provider-license]: LICENSE
