@@ -122,7 +122,7 @@ func ReadLimit(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 
-		return err
+		return checkDeleted(d, err)
 	}
 
 	log.Printf("[DEBUG] RabbitMQ: Limit %s retrieved for %s", limit, alias)
