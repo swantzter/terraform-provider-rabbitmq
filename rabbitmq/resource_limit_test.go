@@ -53,7 +53,7 @@ given key.
 */
 type ValidateDictionary func(limit string, limits map[string]int) error
 
-func TestLimitUser_basic(t *testing.T) {
+func TestAccLimitUser_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 
@@ -74,7 +74,7 @@ func TestLimitUser_basic(t *testing.T) {
 	})
 }
 
-func TestLimitVhost_basic(t *testing.T) {
+func TestAccLimitVhost_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 
@@ -111,7 +111,7 @@ func getLimitParts(state *terraform.State, resource string) (string, string, str
 	return parseLimitID(rs.Primary.ID)
 }
 
-func testLimit(s *terraform.State, resource string, predicat ValidateDictionary) error {
+func testLimit(s *terraform.State, resource string, predicate ValidateDictionary) error {
 
 	scope, limit, alias, err := getLimitParts(s, resource)
 
@@ -134,7 +134,7 @@ func testLimit(s *terraform.State, resource string, predicat ValidateDictionary)
 
 	if err == nil {
 
-		return predicat(limit, limits)
+		return predicate(limit, limits)
 	}
 
 	return err
