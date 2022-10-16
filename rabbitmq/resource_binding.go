@@ -1,11 +1,14 @@
 package rabbitmq
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
@@ -22,12 +25,66 @@ func resourceBinding() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		CustomizeDiff: customdiff.All(customdiff.IfValueChange("source",
+			func(_ context.Context, old, new, _ interface{}) bool { return old != new },
+			func(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
 
+				bindingId := strings.Split(diff.Id(), "/")
+
+				log.Printf("[DEBUG] seven id: %s", diff.Id())
+
+				_old, _new := diff.GetChange("source")
+
+				log.Printf("[DEBUG] old source: %s", _old)
+				log.Printf("[DEBUG] new source: %s", _new)
+
+				if len(bindingId) >= 6 {
+
+					if strings.Contains(_new.(string), bindingId[5]) {
+
+						log.Printf("[DEBUG] Use old values for id: %s, old: %s, new: %s", diff.Id(), _old, _new)
+
+						return diff.SetNew("source", _old)
+					}
+				}
+
+				return nil
+			},
+		),
+			customdiff.IfValueChange("destination",
+				func(_ context.Context, old, new, _ interface{}) bool { return old != new },
+				func(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
+
+					bindingId := strings.Split(diff.Id(), "/")
+
+					log.Printf("[DEBUG] seven id: %s", diff.Id())
+
+					_old, _new := diff.GetChange("destination")
+
+					log.Printf("[DEBUG] old destination: %s", _old)
+					log.Printf("[DEBUG] new destination: %s", _new)
+
+					if len(bindingId) == 7 {
+
+						if strings.Contains(_new.(string), bindingId[6]) {
+
+							log.Printf("[DEBUG] Use old values for id: %s, old: %s, new: %s", diff.Id(), _old, _new)
+
+							return diff.SetNew("destination", _old)
+						}
+					}
+
+					return nil
+				},
+			),
+		),
 		Schema: map[string]*schema.Schema{
 			"source": {
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Required: false,
+				Optional: true,
+				//ForceNew: true,
+				Computed: true,
 			},
 
 			"vhost": {
@@ -38,8 +95,10 @@ func resourceBinding() *schema.Resource {
 
 			"destination": {
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Required: false,
+				Optional: true,
+				//ForceNew: true,
+				Computed: true,
 			},
 
 			"destination_type": {
@@ -148,6 +207,7 @@ func ReadBinding(d *schema.ResourceData, meta interface{}) error {
 	vhost := percentDecodeSlashes(bindingId[0])
 	source := bindingId[1]
 	destination := bindingId[2]
+
 	destinationType := bindingId[3]
 	propertiesKey := bindingId[4]
 	log.Printf("[DEBUG] RabbitMQ: Attempting to find binding for: vhost=%s source=%s destination=%s destinationType=%s propertiesKey=%s",
@@ -162,13 +222,15 @@ func ReadBinding(d *schema.ResourceData, meta interface{}) error {
 	bindingFound := false
 	for _, binding := range bindings {
 		log.Printf("[TRACE] RabbitMQ: Assessing binding: %#v", binding)
+
 		if binding.Source == source && binding.Destination == destination && binding.DestinationType == destinationType && binding.PropertiesKey == propertiesKey {
 			log.Printf("[DEBUG] RabbitMQ: Found Binding: %#v", binding)
 			bindingFound = true
 
 			d.Set("vhost", binding.Vhost)
-			d.Set("source", binding.Source)
-			d.Set("destination", binding.Destination)
+			d.Set("source", source)
+			d.Set("destination", destination)
+
 			d.Set("destination_type", binding.DestinationType)
 			d.Set("routing_key", binding.RoutingKey)
 			d.Set("properties_key", binding.PropertiesKey)
